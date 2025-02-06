@@ -146,6 +146,33 @@ class RFIDManager(private val context: Context) {
         }
     }
 
+    fun writeTag(tagID: String, data: String): Boolean {
+        return try {
+            val tagAccess = TagAccess() // Crear instancia de TagAccess
+            val writeAccessParams = tagAccess.WriteAccessParams() // Crear instancia desde TagAccess
+
+            writeAccessParams.setAccessPassword(0) // Acceso sin contraseña
+            writeAccessParams.setMemoryBank(MEMORY_BANK.MEMORY_BANK_EPC) // Escribir en EPC
+            writeAccessParams.setOffset(2) // Posición de memoria donde escribir
+            writeAccessParams.setWriteData(data) // Datos a escribir
+            writeAccessParams.setWriteDataLength(data.length / 4) // Número de palabras a escribir
+
+            // Realizar la escritura
+            val tagData = TagData()
+            reader?.Actions?.TagAccess?.writeWait(tagID, writeAccessParams, null, tagData)
+
+            Log.d(TAG, "✅ Datos escritos en el tag: $data, Palabras escritas: ${tagData.numberOfWords}")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Error escribiendo en el tag: ${e.localizedMessage}")
+            false
+        }
+    }
+
+
+
+
+
     inner class EventHandler : RfidEventsListener {
 
         override fun eventReadNotify(e: RfidReadEvents?) {

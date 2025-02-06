@@ -16,19 +16,21 @@ class MainActivity : ComponentActivity() {
         val rfidManager = RFIDManager(this)
 
         setContent {
-            AppNavigation(Context = this, rfidManager = rfidManager)
+            AppNavigation(context = this, rfidManager = rfidManager)
         }
     }
 }
 
 
 
-@Composable
-fun AppNavigation(Context: Context, rfidManager: RFIDManager) {
-    val navController = rememberNavController()
-    NavHost(navController, startDestination = "test") {
-        composable("test") { MainScreen(context = Context,rfidManager)  }
 
+@Composable
+fun AppNavigation(context: Context, rfidManager: RFIDManager) {
+    val navController = rememberNavController()
+
+    NavHost(navController, startDestination = "main") {
+        composable("main") { MainScreen(context = context, rfidManager, navController) }
+        composable("write") { WriteScreen(context = context, rfidManager, navController) }
     }
 }
 
