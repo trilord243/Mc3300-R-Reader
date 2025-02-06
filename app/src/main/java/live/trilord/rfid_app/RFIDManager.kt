@@ -15,8 +15,13 @@ class RFIDManager(private val context: Context) {
     private var readers: Readers? = null
     private var availableRFIDReaderList: ArrayList<ReaderDevice>? = null
     private var readerDevice: ReaderDevice? = null
-    private var reader: RFIDReader? = null
+    var reader: RFIDReader? = null
     private val TAG = "RFIDManager"
+    private var isReading = false
+
+
+
+
     fun startInventory() {
         try {
             reader?.Actions?.Inventory?.perform()
@@ -94,13 +99,22 @@ class RFIDManager(private val context: Context) {
                 // Registrar el listener de eventos
                 reader?.Events?.addEventsListener(EventHandler())
 
-                Log.d(TAG, "Gatillo configurado correctamente")
 
+                Log.d(TAG, "Gatillo configurado correctamente")
             } catch (e: InvalidUsageException) {
                 Log.e(TAG, "Error configurando el lector: ${e.localizedMessage}")
             } catch (e: OperationFailureException) {
                 Log.e(TAG, "Error de operación: ${e.localizedMessage}")
             }
+        }
+    }
+
+
+      fun setTriggerFalse(){
+        reader?.Events?.apply {
+            setHandheldEvent(false)
+            setTagReadEvent(false)   // Habilita la lectura de etiquetas
+            setAttachTagDataWithReadEvent(true)
         }
     }
 
@@ -133,11 +147,15 @@ class RFIDManager(private val context: Context) {
     }
 
     inner class EventHandler : RfidEventsListener {
+
         override fun eventReadNotify(e: RfidReadEvents?) {
             val tags = reader?.Actions?.getReadTags(100)
             if (tags != null) {
                 for (tag in tags) {
+
                     Log.d(TAG, "Etiqueta detectada: ${tag.tagID}")
+
+                    onTagReadCallback?.invoke(tag.tagID)
                     toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
                 }
             }
@@ -147,16 +165,41 @@ class RFIDManager(private val context: Context) {
             rfidStatusEvents?.StatusEventData?.let {
                 when (it.statusEventType) {
                     STATUS_EVENT_TYPE.HANDHELD_TRIGGER_EVENT -> {
-                        if (it.HandheldTriggerEventData.handheldEvent == HANDHELD_TRIGGER_EVENT_TYPE.HANDHELD_TRIGGER_PRESSED) {
-                            startInventory()
-                        } else if (it.HandheldTriggerEventData.handheldEvent == HANDHELD_TRIGGER_EVENT_TYPE.HANDHELD_TRIGGER_RELEASED) {
-                            stopInventory()
+                        if (isReading) { // Solo lee si isReading es true
+                            if (it.HandheldTriggerEventData.handheldEvent == HANDHELD_TRIGGER_EVENT_TYPE.HANDHELD_TRIGGER_PRESSED) {
+                                startInventory()
+                            } else if (it.HandheldTriggerEventData.handheldEvent == HANDHELD_TRIGGER_EVENT_TYPE.HANDHELD_TRIGGER_RELEASED) {
+                                stopInventory()
+                            } else {
+                                Log.d(TAG, "Evento de gatillo desconocido")
+                            }
+                        } else {
+                            Log.d(TAG, "Lectura deshabilitada, no se leerán etiquetas")
                         }
                     }
                     else -> Log.d(TAG, "Otro evento de estado detectado")
                 }
             }
         }
+
+
+
+
+
+    }
+    fun enableTrigger(onTagRead: (String) -> Unit) {
+        isReading = true
+        onTagReadCallback = onTagRead // Guardar la referencia del callback
+        Log.d(TAG, "📡 Lectura activada con gatillo")
     }
 
+    fun disableTrigger() {
+        isReading = false
+        stopInventory()
+        onTagReadCallback = null // Limpiar callback
+        Log.d(TAG, "⛔ Lectura desactivada")
+    }
+
+
+    private var onTagReadCallback: ((String) -> Unit)? = null
 }

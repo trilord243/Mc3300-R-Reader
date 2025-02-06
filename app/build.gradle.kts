@@ -49,18 +49,20 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(files("E:\\devices\\RFID-api\\Zebra_RFIDAPI3_SDK_2.0.4.177\\API3_ASCII-release-2.0.4.177.aar"))
-    implementation(files("E:\\devices\\RFID-api\\Zebra_RFIDAPI3_SDK_2.0.4.177\\API3_CMN-release-2.0.4.177.aar"))
-    implementation(files("E:\\devices\\RFID-api\\Zebra_RFIDAPI3_SDK_2.0.4.177\\API3_INTERFACE-release-2.0.4.177.aar"))
-    implementation(files("E:\\devices\\RFID-api\\Zebra_RFIDAPI3_SDK_2.0.4.177\\API3_LLRP-release-2.0.4.177.aar"))
-    implementation(files("E:\\devices\\RFID-api\\Zebra_RFIDAPI3_SDK_2.0.4.177\\API3_NGE-protocolrelease-2.0.4.177.aar"))
-    implementation(files("E:\\devices\\RFID-api\\Zebra_RFIDAPI3_SDK_2.0.4.177\\API3_NGE-Transportrelease-2.0.4.177.aar"))
-    implementation(files("E:\\devices\\RFID-api\\Zebra_RFIDAPI3_SDK_2.0.4.177\\API3_NGEUSB-Transportrelease-2.0.4.177.aar"))
-    implementation(files("E:\\devices\\RFID-api\\Zebra_RFIDAPI3_SDK_2.0.4.177\\API3_READER-release-2.0.4.177.aar"))
-    implementation(files("E:\\devices\\RFID-api\\Zebra_RFIDAPI3_SDK_2.0.4.177\\API3_TRANSPORT-release-2.0.4.177.aar"))
-    implementation(files("E:\\devices\\RFID-api\\Zebra_RFIDAPI3_SDK_2.0.4.177\\BarcodeScannerLibrary-release-6.aar"))
-    implementation(files("E:\\devices\\RFID-api\\Zebra_RFIDAPI3_SDK_2.0.4.177\\rfidhostlib.aar"))
-    implementation(files("E:\\devices\\RFID-api\\Zebra_RFIDAPI3_SDK_2.0.4.177\\rfidseriallib.aar"))
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))
+
+    // Jetpack Compose UI
+    implementation(libs.ui)
+    implementation(libs.material3)
+
+    // Compose Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    // Activity Compose (para soporte en actividades)
+    implementation(libs.androidx.activity.compose.v172)
+
+    // ViewModel para Jetpack Compose (opcional si piensas usarlo)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
